@@ -1,0 +1,16 @@
+{
+  "name": "aave-liquidation",
+  "version": "1.0.0",
+  "description": "A program that continiously monitors a chosen address on aave and liquidates it if its health factor is below 1",
+  "main": "liquidate.js",
+  "scripts": {
+    "start": "node src/liquidate.js"
+  },
+  "author": "Conviley",
+  "license": "MIT",
+  "dependencies": {
+    "@truffle/hdwallet-provider": "^1.0.42",
+    "fs-extra": "^9.0.1",
+    "web3": "^1.2.11"
+  }
+}
