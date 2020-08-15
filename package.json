@@ -4,7 +4,8 @@
   "description": "A program that continiously monitors a chosen address on aave and liquidates it if its health factor is below 1",
   "main": "liquidate.js",
   "scripts": {
-    "start": "node src/liquidate.js"
+    "start": "node src/liquidate.js",
+    "approve": "node src/approve.js"
   },
   "author": "Conviley",
   "license": "MIT",

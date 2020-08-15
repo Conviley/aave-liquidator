@@ -22,26 +22,35 @@ const MAX_UINT256 =
   '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'
 const CONFIG_FILE_PATH = './config.json'
 
-async function approve() {
+function setLiquidationAmount() {
+  return liquidationAmount == 0 ? MAX_UINT256 : liquidationAmount
+}
+const liquidationAmountBN = web3.utils.toBN(setLiquidationAmount())
+
+async function approve(collateralAmountEth = 0) {
+  network == 'mainnet'
+    ? console.log('Running on Mainnet!')
+    : console.log('Running on Ropsten testnet!')
   console.log('\n' + 'Fetching the latest LendingPoolCore contract address')
   const lpCoreAddress = await fetchLatestLpCoreAddress()
   const allowance = await fetchAllowance(lpCoreAddress)
 
-  if (allowance.cmp(web3.utils.toBN(liquidationAmount)) < 0) {
+  // This is not an ideal comparison because allowance and collateralAmountEth probably aren't the same currency
+  if (allowance.cmp(web3.utils.toBN(collateralAmountEth)) < 0) {
     console.log('Increasing LendingPoolCore contract allowance')
 
     await REPAY_TOKEN_CONTRACT.methods
       .approve(lpCoreAddress, web3.utils.toBN(MAX_UINT256).toString())
       .send({ from: liquidatorAddress, gasPrice: gasPrice })
       .catch((e) => {
-        throw Error(`Error approving DAI allowance: ${e.message}`)
+        throw Error(`Error approving RepayToken allowance: ${e.message}`)
       })
     console.log('LendingPoolCore contract Approved!\n')
   } else {
     console.log('LendingPoolCore contract already has sufficient allowance!\n')
-    if (require.main === module) {
-      process.exit()
-    }
+  }
+  if (require.main === module) {
+    process.exit()
   }
 }
 

@@ -12,8 +12,6 @@ const {
   receiveATokens,
 } = require('../config.json')[network]
 
-const approve = require('./approve.js')
-
 const HEALTH_CONSTANT = 1000000000000000000
 const MAX_UINT256 =
   '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'
@@ -52,7 +50,6 @@ async function main() {
             }
           })
 
-          await approve() // Could speed things up if you remove this if you are sure your account is approved and has sufficient ballance
           await liquidate()
           process.exit()
         } else {
