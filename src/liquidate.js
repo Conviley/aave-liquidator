@@ -71,7 +71,7 @@ async function main() {
 }
 
 async function liquidate() {
-  console.log('Issuing liquidation call...')
+  console.log('\nIssuing liquidation call...')
   liquidationReceipt = await lpContract.methods
     .liquidationCall(
       collateralAddress,
