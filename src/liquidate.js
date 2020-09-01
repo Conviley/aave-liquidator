@@ -1,5 +1,6 @@
 const LP_ABI = require('../abi/LendingPool.json')
 const { network, web3wss, web3 } = require('./web3.js')
+const fetchGasPrice = require('./fetchGasPrice.js')
 const {
   liquidatorAddress,
   addressToLiquidate,
@@ -7,9 +8,9 @@ const {
   repayTokenAddress,
   lpAddress,
   liquidationAmount,
-  gasPrice,
   gasLimit,
   receiveATokens,
+  dynamicGasPrice,
 } = require('../config.json')[network]
 
 const HEALTH_CONSTANT = 1000000000000000000
@@ -23,11 +24,13 @@ function setLiquidationAmount() {
 }
 
 const liquidationAmountBN = web3.utils.toBN(setLiquidationAmount())
-
+var gasPrice = require('../config.json')[network].gasPrice
 async function main() {
   network == 'mainnet'
     ? console.log('Running on Mainnet!')
     : console.log('Running on Ropsten testnet!')
+
+  dynamicGasPrice ? (gasPrice = await fetchGasPrice()) : gasPrice
 
   var subscription = web3wss.eth
     .subscribe('newBlockHeaders', async (e, result) => {
@@ -50,13 +53,18 @@ async function main() {
             }
           })
 
-          await liquidate()
+          //await liquidate()
           process.exit()
         } else {
           console.log(
             'Health factor to high or 0! Nothing to liquidate!' + '\n'
           )
-          console.log('Waiting for new block...')
+          console.log('Waiting for new block... ')
+          if (dynamicGasPrice) {
+            fetchGasPrice().then((e) => {
+              gasPrice = e
+            })
+          }
         }
         return
       }
