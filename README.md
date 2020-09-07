@@ -6,7 +6,8 @@ THIS SCRIPT MAY CONTAIN FAULTS! USE AT YOUR OWN RISK!
 # Installation Guide
 ## Prerequisites
 1. Download and install node from the [Official site](https://nodejs.org/en/download/)
-2. You will also need to create an account on [Infura](https://infura.io/)
+2. Create an account on [Infura](https://infura.io/) and set up a new project
+3. Obtain [Eth gas station api key](https://docs.ethgasstation.info/)
 
 ## Setup
 1. Clone the repo
@@ -26,6 +27,8 @@ Make sure `config.json` has EXACTLY the same structure but with YOUR data as sho
     "wss": "wss://mainnet.infura.io/ws/v3/YOUR_PRJECT_ID",
     "http": "https://mainnet.infura.io/v3/YOUR_PRJECT_ID",
     "mnemonic": "Seed phrase to your wallet",
+    "ethGasStationAPIKey": "Your ETH GAS STATION API KEY",
+    "dynamicGasPrice": set to <true> or <false> depending on whether u want to set your own gas price or use eth gas station,
     "liquidationAmount": "Amount you wish to liquidate in WEI. Enter <"0"> and it will liquidate as much as possible",
     "gasPrice": "Gas price in WEI. I recommend you set this to (AT LEAST) the fastest as suggested by https://ethgasstation.info/",
     "gasLimit": 1000000,
@@ -42,6 +45,8 @@ Make sure `config.json` has EXACTLY the same structure but with YOUR data as sho
     "wss": "wss://ropsten.infura.io/ws/v3/YOUR_PRJECT_ID",
     "http": "https://ropsten.infura.io/v3/YOUR_PRJECT_ID",
     "mnemonic": "Seed phrase to your wallet",
+    "ethGasStationAPIKey": "Your ETH GAS STATION API KEY",
+    "dynamicGasPrice": set to <true> or <false> depending on whether u want to set your own gas price or use eth gas station,
     "liquidationAmount": "Amount you wish to liquidate in WEI. Enter <"0"> and it will liquidate as much as possible",
     "gasPrice": "Gas price in WEI. I recommend you set this to (AT LEAST) the fastest as suggested by https://ethgasstation.info/",
     "gasLimit": 1000000,
