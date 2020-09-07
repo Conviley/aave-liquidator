@@ -53,7 +53,7 @@ async function main() {
             }
           })
 
-          //await liquidate()
+          await liquidate()
           process.exit()
         } else {
           console.log(
