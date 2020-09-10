@@ -54,6 +54,7 @@ class Settings extends Component {
 
     let error = false
 
+    // Address Validity Check
     Object.keys(this.state).map((key) => {
       if (key.endsWith('Address') || key == 'addressToLiquidate') {
         var validAddress = !web3.web3.utils.checkAddressChecksum(
@@ -66,8 +67,37 @@ class Settings extends Component {
       }
     })
 
+    if (!this.state.wss.startsWith('wss://')) {
+      this.setState({ wssError: true })
+      error = true
+    }
+
+    if (!this.state.http.startsWith('https://')) {
+      this.setState({ httpError: true })
+      error = true
+    }
+
+    if (this.state.mnemonic.split(' ').length != 12) {
+      this.setState({ mnemonicError: true })
+      error = true
+    }
+
+    if (isNaN(this.state.liquidationAmount)) {
+      this.setState({ liquidationAmountError: true })
+      error = true
+    }
+
+    if (isNaN(this.state.gasLimit)) {
+      this.setState({ gasLimitError: true })
+      error = true
+    }
+
+    if (isNaN(this.state.gasPrice)) {
+      this.setState({ gasPriceError: true })
+      error = true
+    }
+
     if (error) {
-      console.log('NOPE')
       this.setState({ formError: true })
       return
     }
@@ -196,6 +226,7 @@ class Settings extends Component {
               <Input
                 label="HEX"
                 labelPosition="right"
+                placeholder="Address which makes the liquidation call"
                 value={this.state.liquidatorAddress}
                 onChange={(event) => {
                   this.setState({ liquidatorAddress: event.target.value })
@@ -214,6 +245,7 @@ class Settings extends Component {
               <Input
                 label="HEX"
                 labelPosition="right"
+                placeholder="Address to be liquidated"
                 value={this.state.addressToLiquidate}
                 onChange={(event) =>
                   this.setState({ addressToLiquidate: event.target.value })
@@ -234,6 +266,7 @@ class Settings extends Component {
               <Input
                 label="HEX"
                 labelPosition="right"
+                placeholder="Address of the collateral to receive"
                 value={this.state.collateralAddress}
                 onChange={(event) =>
                   this.setState({ collateralAddress: event.target.value })
@@ -252,6 +285,7 @@ class Settings extends Component {
               <Input
                 label="HEX"
                 labelPosition="right"
+                placeholder="Address of the token that is repaid"
                 value={this.state.repayTokenAddress}
                 onChange={(event) =>
                   this.setState({ repayTokenAddress: event.target.value })
@@ -271,6 +305,7 @@ class Settings extends Component {
               <Input
                 label="HEX"
                 labelPosition="right"
+                placeholder="LendingPoolAddressProvider contract address"
                 value={this.state.lpAddressProviderAddress}
                 onChange={(event) =>
                   this.setState({
@@ -291,6 +326,7 @@ class Settings extends Component {
               <Input
                 label="HEX"
                 labelPosition="right"
+                placeholder="LendingPool contract address"
                 value={this.state.lpAddress}
                 onChange={(event) =>
                   this.setState({ lpAddress: event.target.value })
@@ -310,6 +346,7 @@ class Settings extends Component {
               <Input
                 label="HEX"
                 labelPosition="right"
+                placeholder="LendingPoolCore contract address"
                 value={this.state.latestLpCoreAddress}
                 onChange={(event) =>
                   this.setState({ latestLpCoreAddress: event.target.value })
@@ -321,13 +358,14 @@ class Settings extends Component {
               label="Infura WSS Address"
               error={
                 this.state.wssError
-                  ? { content: 'Please enter a valid address' }
+                  ? { content: 'Must start with <wss://>' }
                   : false
               }
             >
               <Input
                 label="URL"
                 labelPosition="right"
+                placeholder="Infura WSS project endpoint"
                 value={this.state.wss}
                 onChange={(event) => this.setState({ wss: event.target.value })}
               />
@@ -338,13 +376,14 @@ class Settings extends Component {
               label="Infura HTTP Address"
               error={
                 this.state.httpError
-                  ? { content: 'Please enter a valid address' }
+                  ? { content: 'Must start with <https://>' }
                   : false
               }
             >
               <Input
                 label="URL"
                 labelPosition="right"
+                placeholder="Infura http project endpoint"
                 value={this.state.http}
                 onChange={(event) =>
                   this.setState({ http: event.target.value })
@@ -356,7 +395,7 @@ class Settings extends Component {
               label="Wallet Mneumonic / Seed Phrase"
               error={
                 this.state.mnemonicError
-                  ? { content: 'Please enter a valid address' }
+                  ? { content: 'Must input 12 word seed phrase' }
                   : false
               }
             >
@@ -375,7 +414,7 @@ class Settings extends Component {
               label="Liquidation Amount"
               error={
                 this.state.liquidationAmountError
-                  ? { content: 'Please enter a valid address' }
+                  ? { content: 'Must be numeric' }
                   : false
               }
             >
@@ -392,7 +431,7 @@ class Settings extends Component {
               label="Gas Limit"
               error={
                 this.state.gasLimitError
-                  ? { content: 'Please enter a valid address' }
+                  ? { content: 'Must be numeric' }
                   : false
               }
             >
@@ -429,7 +468,7 @@ class Settings extends Component {
               label="Gas Price"
               error={
                 this.state.gasPriceError
-                  ? { content: 'Please enter a valid address' }
+                  ? { content: 'Must be numeric' }
                   : false
               }
             >
