@@ -8,11 +8,28 @@ function setNetwork() {
   return process.argv[2] == 'mainnet' ? 'mainnet' : 'ropsten'
 }
 
-const walletProvider = new HDWalletProvider(
-  config[network].mnemonic,
-  config[network].http
-)
-const web3 = new Web3(walletProvider)
+const OPTIONS = {
+  defaultBlock: 'latest',
+  transactionConfirmationBlocks: 1,
+  transactionBlockTimeout: 5,
+}
+
+let web3
+
+if (typeof window !== 'undefined' && typeof window.web3 !== 'undefined') {
+  // In browser and metamask is running
+  console.log(Date.now, 'BRO')
+  web3 = new Web3(window.ethereum, null, OPTIONS)
+  console.log(web3)
+  window.ethereum.enable()
+} else {
+  console.log(Date.now)
+  const walletProvider = new HDWalletProvider(
+    config[network].mnemonic,
+    config[network].http
+  )
+  web3 = new Web3(walletProvider)
+}
 
 const webSocketProvider = new Web3.providers.WebsocketProvider(
   config[network].wss

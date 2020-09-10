@@ -5,14 +5,22 @@
   "main": "liquidate.js",
   "scripts": {
     "start": "node src/liquidate.js",
-    "approve": "node src/approve.js"
+    "approve": "node src/approve.js",
+    "dev": "next dev"
   },
   "author": "Conviley",
   "license": "MIT",
   "dependencies": {
     "@truffle/hdwallet-provider": "^1.0.42",
+    "antd": "^4.6.3",
     "axios": "^0.20.0",
+    "file-saver": "^2.0.2",
     "fs-extra": "^9.0.1",
+    "next": "^9.5.3",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "semantic-ui-css": "^2.4.1",
+    "semantic-ui-react": "^1.2.1",
     "web3": "^1.2.11"
   }
 }
