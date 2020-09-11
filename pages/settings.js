@@ -1,13 +1,7 @@
 import React, { Component } from 'react'
-import {
-  Form,
-  Button,
-  Input,
-  Message,
-  Checkbox,
-  Label,
-} from 'semantic-ui-react'
+import { Form, Button, Input, Message, Checkbox } from 'semantic-ui-react'
 import Layout from '../components/Layout'
+import SettingsFormInput from '../components/SettingFormInput'
 import FileSaver from 'file-saver'
 import web3 from '../src/web3.js'
 
@@ -52,14 +46,81 @@ class Settings extends Component {
     event.preventDefault()
     console.log(this.state)
 
+    if (this.validateState()) {
+      return
+    }
+
+    var configFile = {
+      liquidatorAddress: this.state.liquidatorAddress,
+      addressToLiquidate: this.state.addressToLiquidate,
+      collateralAddress: this.state.collateralAddress,
+      repayTokenAddress: this.state.repayTokenAddress,
+      lpAddressProviderAddress: this.state.lpAddressProviderAddress,
+      lpAddress: this.state.lpAddress,
+      latestLpCoreAddress: this.state.latestLpCoreAddress,
+      wss: this.state.wss,
+      http: this.state.http,
+      mnemonic: this.state.mnemonic,
+      ethGasStationAPIKey: this.state.ethGasStationAPIKey,
+      dynamicGasPrice: this.state.dynamicGasPrice,
+      liquidationAmount: this.state.liquidationAmount,
+      gasPrice: this.state.gasPrice,
+      gasLimit: this.state.gasLimit,
+      receiveATokens: this.state.receiveATokens,
+    }
+    var blob = new Blob([JSON.stringify(configFile)], {
+      type: 'application/json',
+    })
+    FileSaver.saveAs(blob, 'settings.json')
+    this.updateSessionStorage(this.state)
+  }
+
+  hiddenFileInput = React.createRef()
+  uploadSettings = () => {
+    this.hiddenFileInput.current.click()
+  }
+  readSettings = (event) => {
+    console.log('poppopopop')
+    var fileUploaded = event.target.files[0]
+    var fr = new FileReader()
+    fr.onload = (e) => {
+      var result = JSON.parse(e.target.result)
+
+      this.setState({
+        liquidatorAddress: result.liquidatorAddress,
+        addressToLiquidate: result.addressToLiquidate,
+        collateralAddress: result.collateralAddress,
+        repayTokenAddress: result.repayTokenAddress,
+        lpAddressProviderAddress: result.lpAddressProviderAddress,
+        lpAddress: result.lpAddress,
+        latestLpCoreAddress: result.latestLpCoreAddress,
+        wss: result.wss,
+        http: result.http,
+        mnemonic: result.mnemonic,
+        ethGasStationAPIKey: result.ethGasStationAPIKey,
+        dynamicGasPrice: result.dynamicGasPrice,
+        liquidationAmount: result.liquidationAmount,
+        gasPrice: result.gasPrice,
+        gasLimit: result.gasLimit,
+        receiveATokens: result.receiveATokens,
+      })
+      this.validateState()
+      this.updateSessionStorage(result)
+      var formatted = JSON.stringify(result, null, 2)
+      console.log(formatted)
+    }
+
+    fr.readAsText(fileUploaded)
+  }
+
+  validateState = () => {
     let error = false
 
     // Address Validity Check
     Object.keys(this.state).map((key) => {
       if (key.endsWith('Address') || key == 'addressToLiquidate') {
-        var validAddress = !web3.web3.utils.checkAddressChecksum(
-          this.state[key]
-        )
+        let validAddress
+        validAddress = !web3.web3.utils.isAddress(this.state[key])
         this.setState({ [key + 'Error']: validAddress })
         if (validAddress) {
           error = true
@@ -97,70 +158,8 @@ class Settings extends Component {
       error = true
     }
 
-    if (error) {
-      this.setState({ formError: true })
-      return
-    }
-
-    var configFile = {
-      liquidatorAddress: this.state.liquidatorAddress,
-      addressToLiquidate: this.state.addressToLiquidate,
-      collateralAddress: this.state.collateralAddress,
-      repayTokenAddress: this.state.repayTokenAddress,
-      lpAddressProviderAddress: this.state.lpAddressProviderAddress,
-      lpAddress: this.state.lpAddress,
-      latestLpCoreAddress: this.state.latestLpCoreAddress,
-      wss: this.state.wss,
-      http: this.state.http,
-      mnemonic: this.state.mnemonic,
-      ethGasStationAPIKey: this.state.ethGasStationAPIKey,
-      dynamicGasPrice: this.state.dynamicGasPrice,
-      liquidationAmount: this.state.liquidationAmount,
-      gasPrice: this.state.gasPrice,
-      gasLimit: this.state.gasLimit,
-      receiveATokens: this.state.receiveATokens,
-    }
-    var blob = new Blob([JSON.stringify(configFile)], {
-      type: 'application/json',
-    })
-    FileSaver.saveAs(blob, 'settings.json')
-    this.updateSessionStorage(this.state)
-  }
-
-  hiddenFileInput = React.createRef()
-  uploadSettings = () => {
-    this.hiddenFileInput.current.click()
-  }
-  readSettings = (event) => {
-    var fileUploaded = event.target.files[0]
-    var fr = new FileReader()
-    fr.onload = (e) => {
-      var result = JSON.parse(e.target.result)
-
-      this.setState({
-        liquidatorAddress: result.liquidatorAddress,
-        addressToLiquidate: result.addressToLiquidate,
-        collateralAddress: result.collateralAddress,
-        repayTokenAddress: result.repayTokenAddress,
-        lpAddressProviderAddress: result.lpAddressProviderAddress,
-        lpAddress: result.lpAddress,
-        latestLpCoreAddress: result.latestLpCoreAddress,
-        wss: result.wss,
-        http: result.http,
-        mnemonic: result.mnemonic,
-        ethGasStationAPIKey: result.ethGasStationAPIKey,
-        dynamicGasPrice: result.dynamicGasPrice,
-        liquidationAmount: result.liquidationAmount,
-        gasPrice: result.gasPrice,
-        gasLimit: result.gasLimit,
-        receiveATokens: result.receiveATokens,
-      })
-      this.updateSessionStorage(result)
-      var formatted = JSON.stringify(result, null, 2)
-      console.log(formatted)
-    }
-
-    fr.readAsText(fileUploaded)
+    this.setState({ formError: error })
+    return error
   }
 
   updateSessionStorage = (data) => {
@@ -210,287 +209,186 @@ class Settings extends Component {
   //add write to session storage onchange on the unputs
   render() {
     console.log(this.state.liquidationAddressError, 'RENDER')
+    //this.updateSessionStorage(this.state)
     return (
       <Layout>
         <h1>Liquidation Settings</h1>
         <Form onSubmit={this.onSubmit} error={this.state.formError}>
           <Form.Group widths="equal">
-            <Form.Input
+            <SettingsFormInput
               label="Liquidator Address"
-              error={
-                this.state.liquidatorAddressError
-                  ? { content: 'Please enter a valid address' }
-                  : false
-              }
-            >
-              <Input
-                label="HEX"
-                labelPosition="right"
-                placeholder="Address which makes the liquidation call"
-                value={this.state.liquidatorAddress}
-                onChange={(event) => {
-                  this.setState({ liquidatorAddress: event.target.value })
-                }}
-              />
-            </Form.Input>
-
-            <Form.Input
+              error={this.state.liquidatorAddressError}
+              errorContent={'Please enter a valid address'}
+              inputLabel="HEX"
+              placeholder="Address which makes the liquidation call"
+              value={this.state.liquidatorAddress}
+              onChange={(event) => {
+                this.setState({ liquidatorAddress: event.target.value })
+              }}
+            />
+            <SettingsFormInput
               label="Address To Liquidate"
-              error={
-                this.state.addressToLiquidateError
-                  ? { content: 'Please enter a valid address' }
-                  : false
+              error={this.state.addressToLiquidateError}
+              errorContent={'Please enter a valid address'}
+              inputLabel="HEX"
+              placeholder="Address to be liquidated"
+              value={this.state.addressToLiquidate}
+              onChange={(event) =>
+                this.setState({ addressToLiquidate: event.target.value })
               }
-            >
-              <Input
-                label="HEX"
-                labelPosition="right"
-                placeholder="Address to be liquidated"
-                value={this.state.addressToLiquidate}
-                onChange={(event) =>
-                  this.setState({ addressToLiquidate: event.target.value })
-                }
-              />
-            </Form.Input>
+            />
           </Form.Group>
 
           <Form.Group widths="equal">
-            <Form.Input
+            <SettingsFormInput
               label="Collateral Address"
-              error={
-                this.state.collateralAddressError
-                  ? { content: 'Please enter a valid address' }
-                  : false
+              error={this.state.collateralAddressError}
+              errorContent={'Please enter a valid address'}
+              inputLabel="HEX"
+              placeholder="Address of the collateral to receive"
+              value={this.state.collateralAddress}
+              onChange={(event) =>
+                this.setState({ collateralAddress: event.target.value })
               }
-            >
-              <Input
-                label="HEX"
-                labelPosition="right"
-                placeholder="Address of the collateral to receive"
-                value={this.state.collateralAddress}
-                onChange={(event) =>
-                  this.setState({ collateralAddress: event.target.value })
-                }
-              />
-            </Form.Input>
-
-            <Form.Input
+            />
+            <SettingsFormInput
               label="Repay Token Address"
-              error={
-                this.state.repayTokenAddressError
-                  ? { content: 'Please enter a valid address' }
-                  : false
+              error={this.state.repayTokenAddressError}
+              errorContent={'Please enter a valid address'}
+              inputLabel="HEX"
+              placeholder="Address of the token that is repaid"
+              value={this.state.repayTokenAddress}
+              onChange={(event) =>
+                this.setState({ repayTokenAddress: event.target.value })
               }
-            >
-              <Input
-                label="HEX"
-                labelPosition="right"
-                placeholder="Address of the token that is repaid"
-                value={this.state.repayTokenAddress}
-                onChange={(event) =>
-                  this.setState({ repayTokenAddress: event.target.value })
-                }
-              />
-            </Form.Input>
+            />
           </Form.Group>
+
           <Form.Group widths="equal">
-            <Form.Input
+            <SettingsFormInput
               label="LendingPoolAddressProvider Address"
-              error={
-                this.state.lpAddressProviderAddressError
-                  ? { content: 'Please enter a valid address' }
-                  : false
+              error={this.state.lpAddressProviderAddressError}
+              errorContent={'Please enter a valid address'}
+              inputLabel="HEX"
+              placeholder="LendingPoolAddressProvider contract address"
+              value={this.state.lpAddressProviderAddress}
+              onChange={(event) =>
+                this.setState({
+                  lpAddressProviderAddress: event.target.value,
+                })
               }
-            >
-              <Input
-                label="HEX"
-                labelPosition="right"
-                placeholder="LendingPoolAddressProvider contract address"
-                value={this.state.lpAddressProviderAddress}
-                onChange={(event) =>
-                  this.setState({
-                    lpAddressProviderAddress: event.target.value,
-                  })
-                }
-              />
-            </Form.Input>
-
-            <Form.Input
+            />
+            <SettingsFormInput
               label="LendingPool Address"
-              error={
-                this.state.lpAddressError
-                  ? { content: 'Please enter a valid address' }
-                  : false
+              error={this.state.lpAddressError}
+              errorContent={'Please enter a valid address'}
+              inputLabel="HEX"
+              placeholder="LendingPool contract address"
+              value={this.state.lpAddress}
+              onChange={(event) =>
+                this.setState({ lpAddress: event.target.value })
               }
-            >
-              <Input
-                label="HEX"
-                labelPosition="right"
-                placeholder="LendingPool contract address"
-                value={this.state.lpAddress}
-                onChange={(event) =>
-                  this.setState({ lpAddress: event.target.value })
-                }
-              />
-            </Form.Input>
+            />
           </Form.Group>
+
           <Form.Group widths="equal">
-            <Form.Input
+            <SettingsFormInput
               label="LendingPoolCore Address"
-              error={
-                this.state.latestLpCoreAddressError
-                  ? { content: 'Please enter a valid address' }
-                  : false
+              error={this.state.latestLpCoreAddressError}
+              errorContent={'Please enter a valid address'}
+              inputLabel="HEX"
+              placeholder="LendingPoolCore contract address"
+              value={this.state.latestLpCoreAddress}
+              onChange={(event) =>
+                this.setState({ latestLpCoreAddress: event.target.value })
               }
-            >
-              <Input
-                label="HEX"
-                labelPosition="right"
-                placeholder="LendingPoolCore contract address"
-                value={this.state.latestLpCoreAddress}
-                onChange={(event) =>
-                  this.setState({ latestLpCoreAddress: event.target.value })
-                }
-              />
-            </Form.Input>
-
-            <Form.Input
+            />
+            <SettingsFormInput
               label="Infura WSS Address"
-              error={
-                this.state.wssError
-                  ? { content: 'Must start with <wss://>' }
-                  : false
-              }
-            >
-              <Input
-                label="URL"
-                labelPosition="right"
-                placeholder="Infura WSS project endpoint"
-                value={this.state.wss}
-                onChange={(event) => this.setState({ wss: event.target.value })}
-              />
-            </Form.Input>
+              error={this.state.wssError}
+              errorContent={'Must start with <wss://>'}
+              inputLabel="URL"
+              placeholder="Infura WSS project endpoint"
+              value={this.state.wss}
+              onChange={(event) => this.setState({ wss: event.target.value })}
+            />
           </Form.Group>
+
           <Form.Group widths="equal">
-            <Form.Input
+            <SettingsFormInput
               label="Infura HTTP Address"
-              error={
-                this.state.httpError
-                  ? { content: 'Must start with <https://>' }
-                  : false
-              }
-            >
-              <Input
-                label="URL"
-                labelPosition="right"
-                placeholder="Infura http project endpoint"
-                value={this.state.http}
-                onChange={(event) =>
-                  this.setState({ http: event.target.value })
-                }
-              />
-            </Form.Input>
-
-            <Form.Input
+              error={this.state.httpError}
+              errorContent={'Must start with <https://>'}
+              inputLabel="URL"
+              placeholder="Infura http project endpoint"
+              value={this.state.http}
+              onChange={(event) => this.setState({ http: event.target.value })}
+            />
+            <SettingsFormInput
               label="Wallet Mneumonic / Seed Phrase"
-              error={
-                this.state.mnemonicError
-                  ? { content: 'Must input 12 word seed phrase' }
-                  : false
+              error={this.state.mnemonicError}
+              errorContent={'Must input 12 word seed phrase'}
+              inputLabel="String"
+              placeholder="12 word seed phrase"
+              value={this.state.mnemonic}
+              onChange={(event) =>
+                this.setState({ mnemonic: event.target.value })
               }
-            >
-              <Input
-                label="String"
-                labelPosition="right"
-                value={this.state.mnemonic}
-                onChange={(event) =>
-                  this.setState({ mnemonic: event.target.value })
-                }
-              />
-            </Form.Input>
+            />
           </Form.Group>
-          <Form.Group widths="equal">
-            <Form.Input
-              label="Liquidation Amount"
-              error={
-                this.state.liquidationAmountError
-                  ? { content: 'Must be numeric' }
-                  : false
-              }
-            >
-              <Input
-                label="URL"
-                labelPosition="right"
-                value={this.state.liquidationAmount}
-                onChange={(event) =>
-                  this.setState({ liquidationAmount: event.target.value })
-                }
-              />
-            </Form.Input>
-            <Form.Input
-              label="Gas Limit"
-              error={
-                this.state.gasLimitError
-                  ? { content: 'Must be numeric' }
-                  : false
-              }
-            >
-              <Input
-                label="WEI"
-                labelPosition="right"
-                value={this.state.gasLimit}
-                onChange={(event) =>
-                  this.setState({ gasLimit: event.target.value })
-                }
-              />
-            </Form.Input>
-          </Form.Group>
-          <Form.Group widths="equal">
-            <Form.Input
-              label="ETH GAS STATION API KEY"
-              error={
-                this.state.ethGasStationAPIKeyError
-                  ? { content: 'Please enter a valid address' }
-                  : false
-              }
-            >
-              <Input
-                label="String"
-                labelPosition="right"
-                value={this.state.ethGasStationAPIKey}
-                onChange={(event) =>
-                  this.setState({ ethGasStationAPIKey: event.target.value })
-                }
-              />
-            </Form.Input>
 
-            <Form.Input
-              label="Gas Price"
-              error={
-                this.state.gasPriceError
-                  ? { content: 'Must be numeric' }
-                  : false
+          <Form.Group widths="equal">
+            <SettingsFormInput
+              label="Liquidation Amount"
+              error={this.state.liquidationAmountError}
+              errorContent={'Must be numeric'}
+              inputLabel="WEI"
+              placeholder="<0> for max liquidation"
+              value={this.state.liquidationAmount}
+              onChange={(event) =>
+                this.setState({ liquidationAmount: event.target.value })
               }
-            >
-              <Input
-                label="WEI"
-                labelPosition="right"
-                value={this.state.gasPrice}
-                onChange={(event) =>
-                  this.setState({ gasPrice: event.target.value })
-                }
-              />
-            </Form.Input>
+            />
+            <SettingsFormInput
+              label="Gas Limit"
+              error={this.state.gasLimitError}
+              errorContent={'Must be numeric'}
+              inputLabel="GAS"
+              placeholder="Max amount of gas liquidator is allowed to spend"
+              value={this.state.gasLimit}
+              onChange={(event) =>
+                this.setState({ gasLimit: event.target.value })
+              }
+            />
           </Form.Group>
-          <Form.Group>
-            <Form.Input
-              label="Use Dynamic Gas Price"
-              error={
-                this.state.dynamicGasPriceError
-                  ? { content: 'Please enter a valid address' }
-                  : false
+
+          <Form.Group widths="equal">
+            <SettingsFormInput
+              label="ETH GAS STATION API KEY"
+              error={this.state.ethGasStationAPIKeyError}
+              errorContent={'None'}
+              inputLabel="String"
+              placeholder="Ethereum Gas station api key"
+              value={this.state.ethGasStationAPIKey}
+              onChange={(event) =>
+                this.setState({ ethGasStationAPIKey: event.target.value })
               }
-            >
+            />
+            <SettingsFormInput
+              label="Gas Price"
+              error={this.state.gasPriceError}
+              errorContent={'Must be numeric'}
+              inputLabel="WEI"
+              placeholder="Gas price"
+              value={this.state.gasPrice}
+              onChange={(event) =>
+                this.setState({ gasPrice: event.target.value })
+              }
+            />
+          </Form.Group>
+
+          <Form.Group>
+            <Form.Input label="Use Dynamic Gas Price">
               <Checkbox
                 toggle
                 checked={this.state.dynamicGasPrice}
@@ -502,14 +400,7 @@ class Settings extends Component {
               />
             </Form.Input>
 
-            <Form.Input
-              label="Receive Collateral as aTokens"
-              error={
-                this.state.receiveAtokensError
-                  ? { content: 'Please enter a valid address' }
-                  : false
-              }
-            >
+            <Form.Input label="Receive Collateral as aTokens">
               <Checkbox
                 toggle
                 checked={this.state.receiveATokens}
@@ -521,7 +412,7 @@ class Settings extends Component {
               />
             </Form.Input>
           </Form.Group>
-          <Message error header="Oops!" content={this.state.errorMessage} />
+
           <Button primary labelPosition="left" icon="download" content="Save" />
 
           <Button
