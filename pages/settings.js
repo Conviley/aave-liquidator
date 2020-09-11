@@ -80,8 +80,11 @@ class Settings extends Component {
     this.hiddenFileInput.current.click()
   }
   readSettings = (event) => {
-    console.log('poppopopop')
     var fileUploaded = event.target.files[0]
+    if (fileUploaded == null) {
+      return
+    }
+
     var fr = new FileReader()
     fr.onload = (e) => {
       var result = JSON.parse(e.target.result)
@@ -111,6 +114,8 @@ class Settings extends Component {
     }
 
     fr.readAsText(fileUploaded)
+    // this.hiddenFileInput.current.style = { display: 'inline' }
+    this.hiddenFileInput.current.value = ''
   }
 
   validateState = () => {
@@ -131,37 +136,48 @@ class Settings extends Component {
     if (!this.state.wss.startsWith('wss://')) {
       this.setState({ wssError: true })
       error = true
+    } else {
+      this.setState({ wssError: false })
     }
 
     if (!this.state.http.startsWith('https://')) {
       this.setState({ httpError: true })
       error = true
+    } else {
+      this.setState({ httpError: false })
     }
 
     if (this.state.mnemonic.split(' ').length != 12) {
       this.setState({ mnemonicError: true })
       error = true
+    } else {
+      this.setState({ mnemonicError: false })
     }
 
     if (isNaN(this.state.liquidationAmount)) {
       this.setState({ liquidationAmountError: true })
       error = true
+    } else {
+      this.setState({ liquidationAmountError: false })
     }
 
     if (isNaN(this.state.gasLimit)) {
       this.setState({ gasLimitError: true })
       error = true
+    } else {
+      this.setState({ gasLimitError: false })
     }
 
     if (isNaN(this.state.gasPrice)) {
       this.setState({ gasPriceError: true })
       error = true
+    } else {
+      this.setState({ gasPriceError: false })
     }
 
     this.setState({ formError: error })
     return error
   }
-
   updateSessionStorage = (data) => {
     sessionStorage.setItem('liquidatorAddress', data.liquidatorAddress)
     sessionStorage.setItem('addressToLiquidate', data.addressToLiquidate)
@@ -213,12 +229,12 @@ class Settings extends Component {
     return (
       <Layout>
         <h1>Liquidation Settings</h1>
-        <Form onSubmit={this.onSubmit} error={this.state.formError}>
+        <Form onSubmit={this.onSubmit}>
           <Form.Group widths="equal">
             <SettingsFormInput
               label="Liquidator Address"
               error={this.state.liquidatorAddressError}
-              errorContent={'Please enter a valid address'}
+              errorContent={'Invalid address'}
               inputLabel="HEX"
               placeholder="Address which makes the liquidation call"
               value={this.state.liquidatorAddress}
@@ -229,7 +245,7 @@ class Settings extends Component {
             <SettingsFormInput
               label="Address To Liquidate"
               error={this.state.addressToLiquidateError}
-              errorContent={'Please enter a valid address'}
+              errorContent={'Invalid address'}
               inputLabel="HEX"
               placeholder="Address to be liquidated"
               value={this.state.addressToLiquidate}
@@ -243,7 +259,7 @@ class Settings extends Component {
             <SettingsFormInput
               label="Collateral Address"
               error={this.state.collateralAddressError}
-              errorContent={'Please enter a valid address'}
+              errorContent={'Invalid address'}
               inputLabel="HEX"
               placeholder="Address of the collateral to receive"
               value={this.state.collateralAddress}
@@ -254,7 +270,7 @@ class Settings extends Component {
             <SettingsFormInput
               label="Repay Token Address"
               error={this.state.repayTokenAddressError}
-              errorContent={'Please enter a valid address'}
+              errorContent={'Invalid address'}
               inputLabel="HEX"
               placeholder="Address of the token that is repaid"
               value={this.state.repayTokenAddress}
@@ -268,7 +284,7 @@ class Settings extends Component {
             <SettingsFormInput
               label="LendingPoolAddressProvider Address"
               error={this.state.lpAddressProviderAddressError}
-              errorContent={'Please enter a valid address'}
+              errorContent={'Invalid address'}
               inputLabel="HEX"
               placeholder="LendingPoolAddressProvider contract address"
               value={this.state.lpAddressProviderAddress}
@@ -281,7 +297,7 @@ class Settings extends Component {
             <SettingsFormInput
               label="LendingPool Address"
               error={this.state.lpAddressError}
-              errorContent={'Please enter a valid address'}
+              errorContent={'Invalid address'}
               inputLabel="HEX"
               placeholder="LendingPool contract address"
               value={this.state.lpAddress}
@@ -295,7 +311,7 @@ class Settings extends Component {
             <SettingsFormInput
               label="LendingPoolCore Address"
               error={this.state.latestLpCoreAddressError}
-              errorContent={'Please enter a valid address'}
+              errorContent={'Invalid address'}
               inputLabel="HEX"
               placeholder="LendingPoolCore contract address"
               value={this.state.latestLpCoreAddress}
