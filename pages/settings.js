@@ -7,6 +7,7 @@ import web3 from '../src/web3.js'
 
 class Settings extends Component {
   state = {
+    networkVersion: '',
     liquidatorAddress: '',
     addressToLiquidate: '',
     collateralAddress: '',
@@ -71,7 +72,7 @@ class Settings extends Component {
     var blob = new Blob([JSON.stringify(configFile)], {
       type: 'application/json',
     })
-    FileSaver.saveAs(blob, 'settings.json')
+    FileSaver.saveAs(blob, 'aave-liquidator-mainnet-settings.json')
     this.updateSessionStorage(this.state)
   }
 
@@ -201,6 +202,7 @@ class Settings extends Component {
   }
 
   componentDidMount() {
+    console.log('mounted')
     this.setState({
       liquidatorAddress: sessionStorage.getItem('liquidatorAddress'),
       addressToLiquidate: sessionStorage.getItem('addressToLiquidate'),
@@ -224,8 +226,6 @@ class Settings extends Component {
   }
   //add write to session storage onchange on the unputs
   render() {
-    console.log(this.state.liquidationAddressError, 'RENDER')
-    //this.updateSessionStorage(this.state)
     return (
       <Layout>
         <h1>Liquidation Settings</h1>
