@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import Link from 'next/link'
 import { Menu } from 'semantic-ui-react'
 import web3 from '../src/web3'
 
@@ -33,9 +34,15 @@ class Header extends Component {
   render() {
     return (
       <Menu style={{ marginTop: '10px' }}>
-        <Menu.Item>Liquidator</Menu.Item>
+        <Link href="/">
+          <Menu.Item>Liquidator</Menu.Item>
+        </Link>
+
         <Menu.Menu position="right">
-          <Menu.Item>Settings</Menu.Item>
+          <Link href="/settings">
+            <Menu.Item>Settings</Menu.Item>
+          </Link>
+
           <Menu.Item>{this.state.networkVersion}</Menu.Item>
         </Menu.Menu>
       </Menu>
