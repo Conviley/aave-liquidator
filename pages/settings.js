@@ -10,11 +10,10 @@ import {
 import Layout from '../components/Layout'
 import SettingsFormInput from '../components/SettingFormInput'
 import FileSaver from 'file-saver'
-import web3 from '../src/web3.js'
+import { web3 } from '../src/web3.js'
 
 class Settings extends Component {
   state = {
-    networkVersion: '',
     liquidatorAddress: '',
     addressToLiquidate: '',
     collateralAddress: '',
@@ -132,7 +131,7 @@ class Settings extends Component {
     Object.keys(this.state).map((key) => {
       if (key.endsWith('Address') || key == 'addressToLiquidate') {
         let validAddress
-        validAddress = !web3.web3.utils.isAddress(this.state[key])
+        validAddress = !web3.utils.isAddress(this.state[key])
         this.setState({ [key + 'Error']: validAddress })
         if (validAddress) {
           error = true
@@ -263,6 +262,10 @@ class Settings extends Component {
 
   componentDidUpdate() {
     this.updateSessionStorage(this.state)
+  }
+
+  componentWillUnmount() {
+    this.client = null
   }
 
   render() {

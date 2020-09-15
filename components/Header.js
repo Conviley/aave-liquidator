@@ -1,11 +1,11 @@
 import React, { Component } from 'react'
 import Link from 'next/link'
 import { Menu } from 'semantic-ui-react'
-import web3 from '../src/web3'
+import { web3 } from '../src/web3'
 
 class Header extends Component {
   state = { networkVersion: '' }
-
+  listener
   setNetworkDisplay = (network) => {
     switch (network) {
       case '1':
@@ -24,11 +24,27 @@ class Header extends Component {
         this.setState({ networkVersion: 'unsupported' })
     }
   }
+
+  updateSessionStorage() {
+    sessionStorage.setItem('networkVersion', this.state.networkVersion)
+  }
+
   componentDidMount() {
-    web3.web3.eth.net.getNetworkType().then(this.setNetworkDisplay)
-    web3.web3.currentProvider.publicConfigStore.on('update', (data) => {
-      this.setNetworkDisplay(data.networkVersion)
-    })
+    web3.eth.net.getNetworkType().then(this.setNetworkDisplay)
+    this.listener = web3.currentProvider.publicConfigStore.on(
+      'update',
+      (data) => {
+        this.setNetworkDisplay(data.networkVersion)
+      }
+    )
+  }
+
+  componentDidUpdate() {
+    this.updateSessionStorage()
+  }
+
+  componentWillUnmount() {
+    this.listener = null
   }
 
   render() {
