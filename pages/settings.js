@@ -30,6 +30,7 @@ class Settings extends Component {
     liquidationAmount: '',
     gasPrice: '',
     gasLimit: '',
+    fetchAAVEContractsLoading: false,
     receiveATokens: false,
     formError: false,
     liquidatorAddressError: false,
@@ -213,6 +214,7 @@ class Settings extends Component {
   })
 
   fetchContractAddresses = async () => {
+    this.setState({ fetchAAVEContractsLoading: true })
     var result = await this.client.query({
       query: gql`
         query GetPools {
@@ -231,6 +233,7 @@ class Settings extends Component {
       lpAddressProviderAddress: result.id,
       lpAddress: result.lendingPool,
       latestLpCoreAddress: result.lendingPoolCore,
+      fetchAAVEContractsLoading: false,
     })
   }
 
@@ -261,7 +264,7 @@ class Settings extends Component {
   componentDidUpdate() {
     this.updateSessionStorage(this.state)
   }
-  //add write to session storage onchange on the unputs
+
   render() {
     return (
       <ApolloProvider client={this.client}>
@@ -320,11 +323,11 @@ class Settings extends Component {
 
             <Form.Group widths="equal">
               <SettingsFormInput
-                label="LendingPoolAddressProvider Address"
+                label="Lending Pool Address Provider Address"
                 error={this.state.lpAddressProviderAddressError}
                 errorContent={'Invalid address'}
                 inputLabel="HEX"
-                placeholder="LendingPoolAddressProvider contract address"
+                placeholder="Lending Pool Address Provider contract address"
                 value={this.state.lpAddressProviderAddress}
                 onChange={(event) =>
                   this.setState({
@@ -333,11 +336,11 @@ class Settings extends Component {
                 }
               />
               <SettingsFormInput
-                label="LendingPool Address"
+                label="Lending Pool Address"
                 error={this.state.lpAddressError}
                 errorContent={'Invalid address'}
                 inputLabel="HEX"
-                placeholder="LendingPool contract address"
+                placeholder="Lending Pool contract address"
                 value={this.state.lpAddress}
                 onChange={(event) =>
                   this.setState({ lpAddress: event.target.value })
@@ -347,11 +350,11 @@ class Settings extends Component {
 
             <Form.Group widths="equal">
               <SettingsFormInput
-                label="LendingPoolCore Address"
+                label="Lending Pool Core Address"
                 error={this.state.latestLpCoreAddressError}
                 errorContent={'Invalid address'}
                 inputLabel="HEX"
-                placeholder="LendingPoolCore contract address"
+                placeholder="Lending Pool Core contract address"
                 value={this.state.latestLpCoreAddress}
                 onChange={(event) =>
                   this.setState({ latestLpCoreAddress: event.target.value })
@@ -489,8 +492,13 @@ class Settings extends Component {
               onChange={this.readSettings}
               style={{ display: 'none' }}
             />
-            <Button type="button" onClick={this.fetchContractAddresses}>
-              Fetch AAVE Contract Addresses
+
+            <Button
+              loading={this.state.fetchAAVEContractsLoading}
+              type="button"
+              onClick={this.fetchContractAddresses}
+            >
+              Get AAVE Contract Addresses
             </Button>
           </Form>
         </Layout>
