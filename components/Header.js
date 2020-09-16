@@ -31,12 +31,13 @@ class Header extends Component {
 
   componentDidMount() {
     web3.eth.net.getNetworkType().then(this.setNetworkDisplay)
-    this.listener = web3.currentProvider.publicConfigStore.on(
+
+    /*this.listener = web3.currentProvider.publicConfigStore?.on(
       'update',
       (data) => {
         this.setNetworkDisplay(data.networkVersion)
       }
-    )
+    )*/
   }
 
   componentDidUpdate() {
@@ -44,7 +45,7 @@ class Header extends Component {
   }
 
   componentWillUnmount() {
-    this.listener = null
+    //this.listener = null
   }
 
   render() {

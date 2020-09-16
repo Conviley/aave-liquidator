@@ -18,9 +18,11 @@ let web3
 
 if (typeof window !== 'undefined' && typeof window.web3 !== 'undefined') {
   // In browser and metamask is running
+  console.log('WEB3 FROM BROWSER')
   web3 = new Web3(window.ethereum, null, OPTIONS)
   window.ethereum.enable()
 } else {
+  console.log('WEB3 FROM SERVER')
   const walletProvider = new HDWalletProvider(
     config[network].mnemonic,
     config[network].http
