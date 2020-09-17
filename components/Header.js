@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import Link from 'next/link'
+import { withRouter } from 'next/router'
 import { Menu } from 'semantic-ui-react'
 import { web3 } from '../src/web3'
 
@@ -30,7 +31,7 @@ class Header extends Component {
   }
 
   componentDidMount() {
-    web3.eth.net.getNetworkType().then(this.setNetworkDisplay)
+    web3?.eth.net.getNetworkType().then(this.setNetworkDisplay)
 
     /*this.listener = web3.currentProvider.publicConfigStore?.on(
       'update',
@@ -48,12 +49,13 @@ class Header extends Component {
     //this.listener = null
   }
 
+  poop = () => {
+    this.props.router.push({ pathname: '/', query: { reload: true } })
+  }
   render() {
     return (
       <Menu style={{ marginTop: '10px' }}>
-        <Link href="/">
-          <Menu.Item>Liquidator</Menu.Item>
-        </Link>
+        <Menu.Item onClick={this.poop}>Liquidator</Menu.Item>
 
         <Menu.Menu position="right">
           <Link href="/settings">
@@ -67,4 +69,4 @@ class Header extends Component {
   }
 }
 
-export default Header
+export default withRouter(Header)

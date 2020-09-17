@@ -2,41 +2,32 @@ const Web3 = require('web3')
 const config = require('../config.json')
 const HDWalletProvider = require('@truffle/hdwallet-provider')
 
-const network = setNetwork()
+let web3, web3wss
 
-function setNetwork() {
-  return process.argv[2] == 'mainnet' ? 'mainnet' : 'ropsten'
-}
+if (typeof window !== 'undefined') {
+  console.log('BROWSER')
+  try {
+    const walletProvider = new HDWalletProvider(
+      sessionStorage.getItem('mnemonic'),
+      sessionStorage.getItem('http')
+    )
+    web3 = new Web3(walletProvider)
 
-const OPTIONS = {
-  defaultBlock: 'latest',
-  transactionConfirmationBlocks: 1,
-  transactionBlockTimeout: 5,
-}
+    const webSocketProvider = new Web3.providers.WebsocketProvider(
+      sessionStorage.getItem('wss')
+    )
 
-let web3
-
-if (typeof window !== 'undefined' && typeof window.web3 !== 'undefined') {
-  // In browser and metamask is running
-  console.log('WEB3 FROM BROWSER')
-  web3 = new Web3(window.ethereum, null, OPTIONS)
-  window.ethereum.enable()
+    web3wss = new Web3(webSocketProvider)
+  } catch (error) {
+    console.log(error)
+    web3 = null
+    web3wss = null
+  }
 } else {
   console.log('WEB3 FROM SERVER')
-  const walletProvider = new HDWalletProvider(
-    config[network].mnemonic,
-    config[network].http
-  )
-  web3 = new Web3(walletProvider)
 }
-
-const webSocketProvider = new Web3.providers.WebsocketProvider(
-  config[network].wss
-)
-const web3wss = new Web3(webSocketProvider)
 
 module.exports = {
   web3: web3,
   web3wss: web3wss,
-  network: network,
 }

@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
+import { withRouter } from 'next/router'
 import { Button } from 'semantic-ui-react'
 import { web3, web3wss } from '../src/web3'
-import lpcontract from '../src/lendingPoolCore'
 import Layout from '../components/Layout'
 
 class Index extends Component {
@@ -36,14 +36,30 @@ class Index extends Component {
     this.stopLiquidate()
   }
 
+  componentDidMount() {
+    console.log('QUERY', this.props.router.query)
+    if (this.props.router.query.reload == 'true') {
+      console.log('reloading')
+      this.props.router.reload(window.location.pathname)
+    }
+    if (web3 == null) {
+      console.log('no web3')
+      this.props.router.push('/welcome')
+    }
+  }
+
   render() {
-    return (
-      <Layout>
-        <Button onClick={this.liquidate}>Start Liquidator</Button>
-        <Button onClick={this.stopLiquidate}>Stop Liquidator</Button>
-      </Layout>
-    )
+    if (web3 != null) {
+      return (
+        <Layout>
+          <Button onClick={this.liquidate}>Start Liquidator</Button>
+          <Button onClick={this.stopLiquidate}>Stop Liquidator</Button>
+        </Layout>
+      )
+    } else {
+      return <Layout hideHeader={true}></Layout>
+    }
   }
 }
 
-export default Index
+export default withRouter(Index)
