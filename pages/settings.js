@@ -132,6 +132,7 @@ class Settings extends Component {
         let validAddress
         validAddress = !Web3.utils.isAddress(this.state[key])
         this.setState({ [key + 'Error']: validAddress })
+        sessionStorage.setItem(key + 'Error', validAddress)
         if (validAddress) {
           error = true
         }
@@ -140,44 +141,56 @@ class Settings extends Component {
 
     if (!this.state.wss.startsWith('wss://')) {
       this.setState({ wssError: true })
+      sessionStorage.setItem('wssError', true)
       error = true
     } else {
       this.setState({ wssError: false })
+      sessionStorage.setItem('wssError', false)
     }
 
     if (!this.state.http.startsWith('https://')) {
       this.setState({ httpError: true })
+      sessionStorage.setItem('httpError', true)
       error = true
     } else {
       this.setState({ httpError: false })
+      sessionStorage.setItem('httpError', false)
     }
 
     if (this.state.mnemonic.split(' ').length != 12) {
       this.setState({ mnemonicError: true })
+      sessionStorage.setItem('mnemonicError', true)
       error = true
     } else {
       this.setState({ mnemonicError: false })
+      sessionStorage.setItem('mnemonicError', false)
     }
 
     if (isNaN(this.state.liquidationAmount)) {
       this.setState({ liquidationAmountError: true })
+      sessionStorage.setItem('liquidationAmountError', true)
       error = true
     } else {
       this.setState({ liquidationAmountError: false })
+      sessionStorage.setItem('liquidationAmountError', false)
     }
 
     if (isNaN(this.state.gasLimit)) {
       this.setState({ gasLimitError: true })
+      sessionStorage.setItem('gasLimitError', true)
       error = true
     } else {
       this.setState({ gasLimitError: false })
+      sessionStorage.setItem('gasLimitError', false)
     }
 
     if (isNaN(this.state.gasPrice)) {
       this.setState({ gasPriceError: true })
+      sessionStorage.setItem('gasPriceError', true)
       error = true
     } else {
       this.setState({ gasPriceError: false })
+      sessionStorage.setItem('gasPriceError', false)
     }
 
     this.setState({ formError: error })
@@ -236,7 +249,7 @@ class Settings extends Component {
   }
 
   componentDidMount() {
-    console.log('mounted')
+    console.log('MOUNTED')
     this.setState({
       liquidatorAddress: sessionStorage.getItem('liquidatorAddress'),
       addressToLiquidate: sessionStorage.getItem('addressToLiquidate'),
@@ -256,19 +269,45 @@ class Settings extends Component {
       gasPrice: sessionStorage.getItem('gasPrice'),
       gasLimit: sessionStorage.getItem('gasLimit'),
       receiveATokens: sessionStorage.getItem('receiveATokens') == 'true',
+
+      liquidatorAddressError:
+        sessionStorage.getItem('liquidatorAddressError') == 'true',
+      addressToLiquidateError:
+        sessionStorage.getItem('addressToLiquidateError') == 'true',
+      collateralAddressError:
+        sessionStorage.getItem('collateralAddressError') == 'true',
+      repayTokenAddressError:
+        sessionStorage.getItem('repayTokenAddressError') == 'true',
+      lpAddressProviderAddressError:
+        sessionStorage.getItem('lpAddressProviderAddressError') == 'true',
+      lpAddressError: sessionStorage.getItem('lpAddressError') == 'true',
+      latestLpCoreAddressError:
+        sessionStorage.getItem('latestLpCoreAddressError') == 'true',
+      wssError: sessionStorage.getItem('wssError') == 'true',
+      httpError: sessionStorage.getItem('httpError') == 'true',
+      mnemonicError: sessionStorage.getItem('mnemonicError') == 'true',
+      ethGasStationAPIKeyError:
+        sessionStorage.getItem('ethGasStationAPIKeyError') == 'true',
+
+      liquidationAmountError:
+        sessionStorage.getItem('liquidationAmountError') == 'true',
+      gasPriceError: sessionStorage.getItem('gasPriceError') == 'true',
+      gasLimitError: sessionStorage.getItem('gasLimitError') == 'true',
     })
   }
 
   componentDidUpdate() {
-    console.log('updated')
+    console.log('UPDATED')
     this.updateSessionStorage(this.state)
   }
 
   componentWillUnmount() {
     this.client = null
+    this.validateState()
   }
 
   render() {
+    console.log('RENDER')
     return (
       <ApolloProvider client={this.client}>
         <Layout>

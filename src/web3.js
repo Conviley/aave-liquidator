@@ -16,7 +16,6 @@ if (typeof window !== 'undefined') {
     const webSocketProvider = new Web3.providers.WebsocketProvider(
       sessionStorage.getItem('wss')
     )
-
     web3wss = new Web3(webSocketProvider)
   } catch (error) {
     console.log(error)
