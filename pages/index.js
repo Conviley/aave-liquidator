@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { withRouter } from 'next/router'
 import { Button } from 'semantic-ui-react'
-import { web3, web3wss } from '../src/web3'
+import setupWeb3 from '../src/web3'
 import Layout from '../components/Layout'
 
 class Index extends Component {
@@ -36,13 +36,13 @@ class Index extends Component {
     this.stopLiquidate()
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     console.log('QUERY', this.props.router.query)
     if (this.props.router.query.reload == 'true') {
       console.log('reloading')
       this.props.router.reload(window.location.pathname)
     }
-    if (web3 == null) {
+    if (setupWeb3().web3 == null) {
       console.log('no web3')
       this.props.router.push('/welcome')
     }

@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import Link from 'next/link'
 import { withRouter } from 'next/router'
 import { Menu } from 'semantic-ui-react'
-import { web3 } from '../src/web3'
+import setupWeb3 from '../src/web3'
 
 class Header extends Component {
   state = { networkVersion: '' }
@@ -31,7 +31,7 @@ class Header extends Component {
   }
 
   componentDidMount() {
-    web3?.eth.net.getNetworkType().then(this.setNetworkDisplay)
+    setupWeb3().web3?.eth.net.getNetworkType().then(this.setNetworkDisplay)
 
     /*this.listener = web3.currentProvider.publicConfigStore?.on(
       'update',
