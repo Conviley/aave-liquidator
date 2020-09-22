@@ -13,6 +13,7 @@ class Index extends Component {
   }*/
 
   subscription = null
+  web3 = null
   liquidate = async () => {
     if (this.subscription == null) {
       this.subscription = web3wss.eth
@@ -37,28 +38,21 @@ class Index extends Component {
   }
 
   async componentDidMount() {
-    console.log('QUERY', this.props.router.query)
-    if (this.props.router.query.reload == 'true') {
-      console.log('reloading')
-      this.props.router.reload(window.location.pathname)
-    }
-    if (setupWeb3().web3 == null) {
+    this.web3 = (await setupWeb3()).web3
+
+    if (this.web3 == null) {
       console.log('no web3')
       this.props.router.push('/welcome')
     }
   }
 
   render() {
-    if (web3 != null) {
-      return (
-        <Layout>
-          <Button onClick={this.liquidate}>Start Liquidator</Button>
-          <Button onClick={this.stopLiquidate}>Stop Liquidator</Button>
-        </Layout>
-      )
-    } else {
-      return <Layout hideHeader={true}></Layout>
-    }
+    return (
+      <Layout>
+        <Button onClick={this.liquidate}>Start Liquidator</Button>
+        <Button onClick={this.stopLiquidate}>Stop Liquidator</Button>
+      </Layout>
+    )
   }
 }
 

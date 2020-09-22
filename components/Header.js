@@ -30,8 +30,10 @@ class Header extends Component {
     sessionStorage.setItem('networkVersion', this.state.networkVersion)
   }
 
-  componentDidMount() {
-    setupWeb3().web3?.eth.net.getNetworkType().then(this.setNetworkDisplay)
+  async componentDidMount() {
+    ;(await setupWeb3()).web3?.eth.net
+      .getNetworkType()
+      .then(this.setNetworkDisplay)
 
     /*this.listener = web3.currentProvider.publicConfigStore?.on(
       'update',
