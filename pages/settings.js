@@ -48,12 +48,14 @@ class Settings extends Component {
     gasPriceError: false,
     gasLimitError: false,
     receiveAtokensError: false,
+    saving: false,
   }
 
   onSubmit = async (event) => {
     event.preventDefault()
-
+    this.setState({ saving: true })
     if (await this.validateState()) {
+      this.setState({ saving: false })
       return
     }
 
@@ -79,6 +81,7 @@ class Settings extends Component {
       type: 'application/json',
     })
     FileSaver.saveAs(blob, 'aave-liquidator-mainnet-settings.json')
+    this.setState({ saving: false })
   }
 
   hiddenFileInput = React.createRef()
@@ -88,6 +91,7 @@ class Settings extends Component {
   readSettings = (event) => {
     var fileUploaded = event.target.files[0]
     if (fileUploaded == null) {
+      this.setState({ saving: false })
       return
     }
 
@@ -567,6 +571,7 @@ class Settings extends Component {
               primary
               labelPosition="left"
               icon="download"
+              loading={this.state.saving}
               content="Save"
             />
 
