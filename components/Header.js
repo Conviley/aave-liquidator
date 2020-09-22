@@ -31,6 +31,7 @@ class Header extends Component {
   }
 
   async componentDidMount() {
+    this.setState({ networkVersion: sessionStorage.getItem('networkVersion') })
     ;(await setupWeb3()).web3?.eth.net
       .getNetworkType()
       .then(this.setNetworkDisplay)

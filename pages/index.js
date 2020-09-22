@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { withRouter } from 'next/router'
-import { Button } from 'semantic-ui-react'
+import { Button, Dimmer, Loader } from 'semantic-ui-react'
 import setupWeb3 from '../src/web3'
 import Layout from '../components/Layout'
 
@@ -11,6 +11,10 @@ class Index extends Component {
       .call()
     return { healthFactor: 'Health Factor: ' + userAccountData['healthFactor'] }
   }*/
+
+  state = {
+    loading: true,
+  }
 
   subscription = null
   web3 = null
@@ -44,13 +48,22 @@ class Index extends Component {
       console.log('no web3')
       this.props.router.push('/welcome')
     }
+    this.setState({ loading: false })
   }
 
   render() {
     return (
       <Layout>
-        <Button onClick={this.liquidate}>Start Liquidator</Button>
-        <Button onClick={this.stopLiquidate}>Stop Liquidator</Button>
+        <Dimmer active={this.state.loading}>
+          <Loader size="medium">Validating liquidation settings...</Loader>
+        </Dimmer>
+
+        <Button disabled={this.state.loading} onClick={this.liquidate}>
+          Start Liquidator
+        </Button>
+        <Button disabled={this.state.loading} onClick={this.stopLiquidate}>
+          Stop Liquidator
+        </Button>
       </Layout>
     )
   }
