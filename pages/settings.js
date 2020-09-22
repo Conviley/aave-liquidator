@@ -9,6 +9,7 @@ import {
 import Layout from '../components/Layout'
 import SettingsFormInput from '../components/SettingFormInput'
 import FileSaver from 'file-saver'
+const axios = require('axios')
 const Web3 = require('web3')
 
 class Settings extends Component {
@@ -49,11 +50,10 @@ class Settings extends Component {
     receiveAtokensError: false,
   }
 
-  onSubmit = (event) => {
+  onSubmit = async (event) => {
     event.preventDefault()
-    console.log(this.state)
 
-    if (this.validateState()) {
+    if (await this.validateState()) {
       return
     }
 
@@ -123,7 +123,50 @@ class Settings extends Component {
     this.hiddenFileInput.current.value = ''
   }
 
-  validateState = () => {
+  waitForWssValidation = (socket) => {
+    return new Promise((resolve, reject) => {
+      const maxNumberOfAttempts = 10
+      const intervalTime = 200 //ms
+
+      let currentAttempt = 0
+      const interval = setInterval(() => {
+        if (currentAttempt > maxNumberOfAttempts - 1) {
+          clearInterval(interval)
+          reject(new Error('Maximum number of attempts exceeded'))
+        }
+
+        socket.onopen = () => {
+          console.log('WEBSOCKET CONNECTION OPENED')
+
+          socket.send(
+            JSON.stringify({
+              jsonrpc: '2.0',
+              method: 'eth_blockNumber',
+              params: [],
+              id: 1,
+            })
+          )
+        }
+
+        socket.onmessage = (message) => {
+          console.log('ON MESSAGE', message)
+          this.setState({ wssError: false })
+          sessionStorage.setItem('wssError', false)
+          clearInterval(interval)
+          resolve()
+          socket.close()
+        }
+
+        socket.onerror = (error) => {
+          this.setState({ wssError: true })
+          sessionStorage.setItem('wssError', true)
+        }
+        currentAttempt++
+      }, intervalTime)
+    })
+  }
+
+  validateState = async () => {
     let error = false
 
     // Address Validity Check
@@ -139,22 +182,30 @@ class Settings extends Component {
       }
     })
 
-    if (!this.state.wss.startsWith('wss://')) {
+    try {
+      const socket = new WebSocket(this.state.wss)
+      await this.waitForWssValidation(socket)
+    } catch (errorMessage) {
       this.setState({ wssError: true })
       sessionStorage.setItem('wssError', true)
       error = true
-    } else {
-      this.setState({ wssError: false })
-      sessionStorage.setItem('wssError', false)
     }
 
-    if (!this.state.http.startsWith('https://')) {
+    try {
+      const headers = { 'Content-Type': 'application/json' }
+      await axios.post(
+        this.state.http,
+        { jsonrpc: '2.0', method: 'eth_blockNumber', params: [], id: 1 },
+        { headers: headers }
+      )
+      console.log('INFURA HTTP SUCESS')
+      this.setState({ httpError: false })
+      sessionStorage.setItem('httpError', false)
+    } catch (errorMessage) {
+      console.log('INFURA HTTPS ERROR', errorMessage)
       this.setState({ httpError: true })
       sessionStorage.setItem('httpError', true)
       error = true
-    } else {
-      this.setState({ httpError: false })
-      sessionStorage.setItem('httpError', false)
     }
 
     if (this.state.mnemonic.split(' ').length != 12) {
@@ -194,6 +245,7 @@ class Settings extends Component {
     }
 
     this.setState({ formError: error })
+    console.log('STATE HAS ERROR:', error)
     return error
   }
   updateSessionStorage = (data) => {
@@ -249,7 +301,6 @@ class Settings extends Component {
   }
 
   componentDidMount() {
-    console.log('MOUNTED')
     this.setState({
       liquidatorAddress: sessionStorage.getItem('liquidatorAddress'),
       addressToLiquidate: sessionStorage.getItem('addressToLiquidate'),
@@ -297,7 +348,6 @@ class Settings extends Component {
   }
 
   componentDidUpdate() {
-    console.log('UPDATED')
     this.updateSessionStorage(this.state)
   }
 
@@ -307,7 +357,6 @@ class Settings extends Component {
   }
 
   render() {
-    console.log('RENDER')
     return (
       <ApolloProvider client={this.client}>
         <Layout>
@@ -405,7 +454,7 @@ class Settings extends Component {
               <SettingsFormInput
                 label="Infura WSS Address"
                 error={this.state.wssError}
-                errorContent={'Must start with <wss://>'}
+                errorContent={'Invalid infura endpoint'}
                 inputLabel="URL"
                 placeholder="Infura WSS project endpoint"
                 value={this.state.wss}
@@ -417,7 +466,7 @@ class Settings extends Component {
               <SettingsFormInput
                 label="Infura HTTP Address"
                 error={this.state.httpError}
-                errorContent={'Must start with <https://>'}
+                errorContent={'Invalid infura endpoint'}
                 inputLabel="URL"
                 placeholder="Infura http project endpoint"
                 value={this.state.http}
