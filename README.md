@@ -1,3 +1,7 @@
+# ⚠️THE AAVE LIQUIDATOR IS NO LONGER BEING MAINTAINED⚠️
+Development and maintenance of the aave liquidator has stopped as of September 2020!  
+The repository is left public for demo / educational purposes only!
+
 # AAVE Liquidator
 This script allows monitoring of a single address that has an outstanding loan on AAVE. Once that address has a health factor below 1 a liquidation call will be issued!
 
